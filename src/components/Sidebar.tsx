@@ -1,5 +1,5 @@
-import React from 'react';
-import { Activity, Upload, Settings, PieChart, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Activity, Upload, Settings, PieChart, ChevronRight, ChevronDown } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { PREDEFINED_INDICATORS } from '../types';
@@ -14,6 +14,13 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    'Geral': true,
+    'eSF/eAP': false,
+    'eSB': false,
+    'Outros': true
+  });
+
   const mainTabs = [
     { id: 'dashboard', label: 'Visão Geral', icon: PieChart },
     { id: 'upload', label: 'Importar SIAPS', icon: Upload },
@@ -26,6 +33,25 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
     acc[ind.group].push(ind);
     return acc;
   }, {} as Record<string, typeof PREDEFINED_INDICATORS>);
+
+  // Auto-expand group if it contains the active tab
+  useEffect(() => {
+    if (currentTab.startsWith('ind_')) {
+      const indId = currentTab.replace('ind_', '');
+      const activeIndicator = PREDEFINED_INDICATORS.find(i => i.id === indId);
+      if (activeIndicator && !expandedGroups[activeIndicator.group]) {
+        setExpandedGroups(prev => ({ ...prev, [activeIndicator.group]: true }));
+      }
+    }
+  }, [currentTab]);
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+    onTabChange(`group_${groupName}`);
+  };
 
   return (
     <div className="w-64 bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 overflow-y-auto">
@@ -60,34 +86,50 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
       </nav>
 
       <div className="flex-1 px-4 pb-4">
-        {Object.entries(groups).map(([groupName, indicators]) => (
-          <div key={groupName} className="mb-6">
-            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 px-4">
-              {groupName}
-            </h3>
-            <div className="space-y-1">
-              {indicators.map(ind => {
-                const tabId = `ind_${ind.id}`;
-                const isActive = currentTab === tabId;
-                return (
-                  <button
-                    key={ind.id}
-                    onClick={() => onTabChange(tabId)}
-                    className={cn(
-                      "w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-sm",
-                      isActive 
-                        ? "bg-slate-800 text-white font-medium" 
-                        : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
-                    )}
-                  >
-                    <span className="truncate text-left">{ind.name}</span>
-                    {isActive && <ChevronRight size={14} className="text-emerald-500" />}
-                  </button>
-                );
-              })}
+        {Object.entries(groups).map(([groupName, indicators]) => {
+          const isExpanded = expandedGroups[groupName];
+          
+          return (
+            <div key={groupName} className="mb-2">
+              <button 
+                onClick={() => toggleGroup(groupName)}
+                className={cn(
+                  "w-full flex items-center justify-between text-xs font-semibold uppercase tracking-wider py-2 px-4 transition-colors rounded-lg",
+                  currentTab === `group_${groupName}` 
+                    ? "bg-slate-800 text-emerald-400" 
+                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                )}
+              >
+                <span>{groupName}</span>
+                {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+              </button>
+              
+              {isExpanded && (
+                <div className="space-y-1 mt-1">
+                  {indicators.map(ind => {
+                    const tabId = `ind_${ind.id}`;
+                    const isActive = currentTab === tabId;
+                    return (
+                      <button
+                        key={ind.id}
+                        onClick={() => onTabChange(tabId)}
+                        className={cn(
+                          "w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-sm",
+                          isActive 
+                            ? "bg-slate-800 text-white font-medium" 
+                            : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                        )}
+                      >
+                        <span className="truncate text-left">{ind.name}</span>
+                        {isActive && <ChevronRight size={14} className="text-emerald-500" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="p-4 border-t border-slate-800 sticky bottom-0 bg-slate-900">

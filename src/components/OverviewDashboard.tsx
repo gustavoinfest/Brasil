@@ -6,17 +6,22 @@ interface OverviewDashboardProps {
   datasets: Record<string, IndicatorDataset>;
   onSelectIndicator: (id: string) => void;
   onGoToUpload: () => void;
+  filterGroup?: string;
 }
 
-export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload }: OverviewDashboardProps) {
+export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload, filterGroup }: OverviewDashboardProps) {
   // Group indicators by their group
-  const groupedIndicators = PREDEFINED_INDICATORS.reduce((acc, indicator) => {
+  let groupedIndicators = PREDEFINED_INDICATORS.reduce((acc, indicator) => {
     if (!acc[indicator.group]) {
       acc[indicator.group] = [];
     }
     acc[indicator.group].push(indicator);
     return acc;
   }, {} as Record<string, typeof PREDEFINED_INDICATORS>);
+
+  if (filterGroup && groupedIndicators[filterGroup]) {
+    groupedIndicators = { [filterGroup]: groupedIndicators[filterGroup] };
+  }
 
   const getIndicatorStats = (id: string) => {
     const dataset = datasets[id];
@@ -74,7 +79,9 @@ export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload }:
     <div className="p-6 max-w-7xl mx-auto h-full overflow-y-auto">
       <div className="mb-8 flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Visão Geral dos Indicadores</h2>
+          <h2 className="text-2xl font-bold text-slate-900">
+            {filterGroup ? `Visão Geral: ${filterGroup}` : 'Visão Geral dos Indicadores'}
+          </h2>
           <p className="text-slate-500 text-sm mt-1">Acompanhamento consolidado do município</p>
         </div>
         <button 
@@ -88,7 +95,9 @@ export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload }:
 
       {Object.entries(groupedIndicators).map(([group, indicators]) => (
         <div key={group} className="mb-10">
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">{group}</h3>
+          {!filterGroup && (
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">{group}</h3>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {indicators.map((indicator) => {

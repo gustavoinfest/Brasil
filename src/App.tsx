@@ -115,6 +115,18 @@ export default function App() {
       );
     }
 
+    if (currentTab.startsWith('group_')) {
+      const groupName = currentTab.replace('group_', '');
+      return (
+        <OverviewDashboard 
+          datasets={datasets} 
+          onSelectIndicator={(id) => setCurrentTab(`ind_${id}`)}
+          onGoToUpload={() => setCurrentTab('upload')}
+          filterGroup={groupName}
+        />
+      );
+    }
+
     switch (currentTab) {
       case 'dashboard':
         return (
