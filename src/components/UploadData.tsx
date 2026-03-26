@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, FileText, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Upload, UploadCloud, FileText, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { IndicatorDataset, PREDEFINED_INDICATORS, TeamData } from '../types';
@@ -82,12 +82,7 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
 
           const headerIndex = lines.findIndex(line => {
             const upperLine = line.toUpperCase();
-            let matches = 0;
-            if (upperLine.includes('CNES')) matches++;
-            if (upperLine.includes('ESTABELECIMENTO')) matches++;
-            if (upperLine.includes('EQUIPE')) matches++;
-            if (upperLine.includes('INE')) matches++;
-            return matches >= 2;
+            return upperLine.includes('CNES') || upperLine.includes('INE') || upperLine.includes('NOME DA EQUIPE') || upperLine.includes('EQUIPE');
           });
           
           if (headerIndex === -1) {
@@ -103,7 +98,6 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
           const csvString = csvLines.join('\n');
 
           Papa.parse(csvString, {
-            delimiter: ';',
             header: true,
             skipEmptyLines: true,
             complete: (parseResults) => {
@@ -121,18 +115,28 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
                 const pontuacaoKey = keys.find(k => {
                   const upperK = k.toUpperCase().trim();
                   return upperK.includes('PONTUAÇÃO') || 
+                         upperK.includes('PONTUACAO') ||
                          upperK.includes('RESULTADO') || 
-                         upperK.includes('RAZÃO ENTRE O NUMERADOR E DENOMINADOR') ||
-                         upperK.includes('SOMATÓRIO DA BOA PRÁTICA');
+                         upperK.includes('RAZÃO') ||
+                         upperK.includes('RAZAO') ||
+                         upperK.includes('TAXA') ||
+                         upperK.includes('PROPORÇÃO') ||
+                         upperK.includes('PROPORCAO') ||
+                         upperK.includes('PERCENTUAL') ||
+                         upperK.includes('SOMATÓRIO DA BOA PRÁTICA') ||
+                         upperK === '%';
                 });
                 
                 const pontuacaoRaw = pontuacaoKey ? row[pontuacaoKey] : '0';
                 const pontuacao = parseNum(pontuacaoRaw);
                 
-                const numeradorKey = keys.find(k => k.toUpperCase().trim() === 'NUMERADOR');
+                const numeradorKey = keys.find(k => {
+                  const upperK = k.toUpperCase().trim();
+                  return upperK.includes('NUMERADOR') && !upperK.includes('RAZÃO') && !upperK.includes('RAZAO');
+                });
                 const denominadorKey = keys.find(k => {
                   const upperK = k.toUpperCase().trim();
-                  return upperK === 'DENOMINADOR ESTIMADO' || upperK === 'DENOMINADOR INFORMADO' || upperK === 'DENOMINADOR';
+                  return upperK.includes('DENOMINADOR') && !upperK.includes('RAZÃO') && !upperK.includes('RAZAO');
                 });
 
                 const numerador = numeradorKey ? parseNum(row[numeradorKey]) : 0;
@@ -246,78 +250,116 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-900">Importar Relatórios SIAPS</h2>
-        <p className="text-slate-500 mt-2">
+    <div className="max-w-4xl mx-auto p-6 h-full overflow-y-auto pb-12">
+      <div className="mb-10 text-center">
+        <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Importar Relatórios SIAPS</h2>
+        <p className="text-slate-500 mt-3 text-base max-w-2xl mx-auto">
           Faça o upload de um ou mais relatórios extraídos do SIAPS para atualizar os indicadores. O sistema identificará automaticamente qual indicador está sendo importado em cada arquivo.
         </p>
       </div>
 
-      <div 
-        className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 ${
-          isDragging 
-            ? 'border-emerald-500 bg-emerald-50' 
-            : 'border-slate-300 bg-slate-50 hover:bg-slate-100 hover:border-slate-400'
-        }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-      >
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          onChange={handleFileInput} 
-          accept=".csv,.txt,.xlsx,.xls" 
-          multiple
-          className="hidden" 
-        />
+      <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 mb-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-500"></div>
         
-        <div className="flex flex-col items-center justify-center cursor-pointer">
-          <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 text-emerald-600">
-            <Upload size={32} />
+        <div 
+          className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer ${
+            isDragging 
+              ? 'border-indigo-500 bg-indigo-50/50 scale-[1.02]' 
+              : 'border-slate-200 hover:border-indigo-400 hover:bg-slate-50'
+          }`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileInput} 
+            accept=".csv,.txt,.xlsx,.xls" 
+            multiple
+            className="hidden" 
+          />
+          
+          <div className="flex flex-col items-center justify-center">
+            <div className="w-20 h-20 mx-auto bg-indigo-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+              <UploadCloud size={40} className="text-indigo-500" />
+            </div>
+            <h3 className="text-xl font-display font-bold text-slate-800 mb-2">Clique ou arraste os arquivos aqui</h3>
+            <p className="text-slate-500 mb-8 max-w-md mx-auto text-sm">
+              Suporta múltiplos arquivos .XLSX, .CSV ou .TXT extraídos diretamente do SIAPS
+            </p>
+            
+            <span className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 hover:-translate-y-0.5">
+              <FileText size={18} />
+              Selecionar Arquivos
+            </span>
           </div>
-          <h3 className="text-lg font-semibold text-slate-800">Clique ou arraste os arquivos aqui</h3>
-          <p className="text-slate-500 mt-2 text-sm">Suporta múltiplos arquivos .XLSX, .CSV ou .TXT extraídos diretamente do SIAPS</p>
         </div>
       </div>
 
       {isProcessing && (
-        <div className="mt-6 p-4 bg-blue-50 text-blue-700 rounded-xl flex items-center gap-3">
-          <RefreshCw className="animate-spin" size={20} />
-          <p className="font-medium">Processando relatórios...</p>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 text-center mb-8">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-indigo-200 border-t-indigo-600 mb-4"></div>
+          <p className="text-slate-600 font-medium">Processando relatórios...</p>
+          <p className="text-slate-400 text-sm mt-1">Isso pode levar alguns segundos dependendo do tamanho dos arquivos.</p>
         </div>
       )}
 
       {results.length > 0 && (
-        <div className="mt-6 space-y-3">
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">Resultados da Importação:</h3>
+        <div className="mt-8 space-y-4">
+          <h3 className="text-lg font-display font-bold text-slate-800 mb-4">Resultados da Importação:</h3>
           {results.map((r, idx) => (
-            <div key={idx} className={`p-4 rounded-xl flex items-center gap-3 border ${r.success ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'}`}>
-              {r.success ? <CheckCircle size={20} className="text-emerald-500 flex-shrink-0" /> : <AlertCircle size={20} className="text-red-500 flex-shrink-0" />}
+            <div key={idx} className={`p-5 rounded-2xl flex items-start gap-4 border shadow-sm transition-all ${r.success ? 'bg-emerald-50/50 text-emerald-800 border-emerald-100' : 'bg-rose-50/50 text-rose-800 border-rose-100'}`}>
+              {r.success ? <CheckCircle size={24} className="text-emerald-500 flex-shrink-0 mt-0.5" /> : <AlertCircle size={24} className="text-rose-500 flex-shrink-0 mt-0.5" />}
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium text-sm flex items-center gap-2">
-                    <FileText size={16} className={r.success ? "text-emerald-500" : "text-red-400"} />
+                  <p className="font-semibold text-base flex items-center gap-2">
+                    <FileText size={18} className={r.success ? "text-emerald-500" : "text-rose-400"} />
                     {r.file}
                   </p>
-                  {r.size && <span className="text-xs opacity-70">{(r.size / 1024).toFixed(1)} KB</span>}
+                  {r.size && <span className="text-xs font-medium px-2.5 py-1 rounded-md bg-white/60 text-slate-500">{(r.size / 1024).toFixed(1)} KB</span>}
                 </div>
-                {r.message && <p className="text-xs mt-1 opacity-80">{r.message}</p>}
+                {r.message && <p className="text-sm mt-2 text-slate-600 bg-white/50 p-3 rounded-xl border border-white/60">{r.message}</p>}
               </div>
             </div>
           ))}
           
           {results.some(r => r.success) && !isProcessing && (
-            <div className="mt-6 text-center animate-pulse">
-              <p className="text-sm text-slate-600 font-medium">
+            <div className="mt-8 text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full font-medium text-sm animate-pulse">
+                <RefreshCw size={16} className="animate-spin" />
                 Redirecionando para o painel...
-              </p>
+              </div>
             </div>
           )}
         </div>
       )}
+
+      <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100 mt-10">
+        <h3 className="font-display font-bold text-slate-800 mb-5 flex items-center gap-2 text-lg">
+          <AlertCircle size={20} className="text-indigo-500" />
+          Instruções para Importação
+        </h3>
+        <ul className="space-y-4 text-sm text-slate-600">
+          <li className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">1</div>
+            <span className="leading-relaxed">Exporte os relatórios do SIAPS no formato CSV, TXT ou Excel.</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">2</div>
+            <span className="leading-relaxed">O sistema utiliza o nome do arquivo ou o cabeçalho para identificar o indicador correspondente.</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">3</div>
+            <span className="leading-relaxed">Certifique-se de que os arquivos contêm as colunas padrão do SIAPS (INE, Nome da Equipe, Numerador, Denominador, etc).</span>
+          </li>
+          <li className="flex items-start gap-3">
+            <div className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 font-bold text-xs mt-0.5">4</div>
+            <span className="leading-relaxed">Para indicadores CVAT, o sistema buscará colunas como "TOTAL DE PESSOAS ACOMPANHADAS" e "PARÂMETRO POPULACIONAL".</span>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }

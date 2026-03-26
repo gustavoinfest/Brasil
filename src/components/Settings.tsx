@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Settings as SettingsIcon, Database, Bell, Shield, Users, CheckCircle, Save, Trash2, AlertTriangle } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Settings as SettingsIcon, Database, Bell, Save, Trash2, AlertTriangle, Download, Upload as UploadIcon, CheckCircle } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import localforage from 'localforage';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,14 +17,13 @@ export function Settings({ onClearData }: SettingsProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
   const [apiUrl, setApiUrl] = useState('https://api.saude.gov.br/siaps/v1');
   const [autoSync, setAutoSync] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsNotifications, setSmsNotifications] = useState(false);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
-  const [sessionTimeout, setSessionTimeout] = useState('30');
 
   const handleSave = () => {
     setIsSaving(true);
@@ -39,6 +39,48 @@ export function Settings({ onClearData }: SettingsProps) {
     if (onClearData) {
       onClearData();
       setShowClearConfirm(false);
+    }
+  };
+
+  const handleExportBackup = async () => {
+    try {
+      const data = await localforage.getItem('all_datasets');
+      const blob = new Blob([JSON.stringify(data || {})], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `saude-brasil-360-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao exportar backup:", error);
+      alert("Erro ao exportar backup.");
+    }
+  };
+
+  const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const content = event.target?.result as string;
+        const data = JSON.parse(content);
+        await localforage.setItem('all_datasets', data);
+        window.location.reload(); // Reload to apply the imported data
+      } catch (error) {
+        console.error("Erro ao importar backup:", error);
+        alert("Arquivo de backup inválido ou corrompido.");
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -150,75 +192,62 @@ export function Settings({ onClearData }: SettingsProps) {
             </div>
           </div>
         );
-      case 'security':
+      case 'backup':
         return (
           <div className="space-y-6 animate-in fade-in duration-300">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">Segurança da Conta</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-6">Backup e Restauração</h3>
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
-                <div>
-                  <h4 className="text-sm font-medium text-slate-900">Autenticação em Duas Etapas (2FA)</h4>
-                  <p className="text-xs text-slate-500 mt-1">Adiciona uma camada extra de segurança</p>
+            <div className="space-y-6">
+              <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-indigo-100 text-indigo-600 rounded-lg">
+                    <Download size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-base font-medium text-slate-900">Exportar Backup</h4>
+                    <p className="text-sm text-slate-500 mt-1 mb-4">
+                      Baixe um arquivo contendo todos os dados e indicadores atualmente salvos no sistema.
+                    </p>
+                    <button 
+                      onClick={handleExportBackup}
+                      className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                    >
+                      <Download size={16} />
+                      Fazer Download do Backup
+                    </button>
+                  </div>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" checked={twoFactorAuth} onChange={(e) => setTwoFactorAuth(e.target.checked)} />
-                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
-                </label>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Tempo de Expiração da Sessão (minutos)
-                </label>
-                <select 
-                  value={sessionTimeout}
-                  onChange={(e) => setSessionTimeout(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all appearance-none bg-white"
-                >
-                  <option value="15">15 minutos</option>
-                  <option value="30">30 minutos</option>
-                  <option value="60">1 hora</option>
-                  <option value="120">2 horas</option>
-                </select>
+              <div className="p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
+                    <UploadIcon size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-base font-medium text-slate-900">Restaurar Backup</h4>
+                    <p className="text-sm text-slate-500 mt-1 mb-4">
+                      Restaure os dados a partir de um arquivo de backup previamente exportado. <br/>
+                      <strong className="text-amber-600">Atenção:</strong> Isso substituirá todos os dados atuais.
+                    </p>
+                    <input 
+                      type="file" 
+                      accept=".json" 
+                      className="hidden" 
+                      ref={fileInputRef}
+                      onChange={handleImportBackup}
+                    />
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+                    >
+                      <UploadIcon size={16} />
+                      Selecionar Arquivo de Backup
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      case 'users':
-        return (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <h3 className="text-lg font-semibold text-slate-900 mb-6">Usuários e Permissões</h3>
-            
-            <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-100 text-slate-600 border-b border-slate-200">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Nome</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3 font-medium">Papel</th>
-                    <th className="px-4 py-3 font-medium text-right">Ações</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-slate-900">Admin Sistema</td>
-                    <td className="px-4 py-3 text-slate-500">admin@saude.gov.br</td>
-                    <td className="px-4 py-3"><span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md text-xs font-medium">Administrador</span></td>
-                    <td className="px-4 py-3 text-right"><button className="text-blue-600 hover:underline">Editar</button></td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-3 font-medium text-slate-900">Gestor Municipal</td>
-                    <td className="px-4 py-3 text-slate-500">gestor@municipio.gov.br</td>
-                    <td className="px-4 py-3"><span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">Gestor</span></td>
-                    <td className="px-4 py-3 text-right"><button className="text-blue-600 hover:underline">Editar</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
-              Adicionar Novo Usuário
-            </button>
           </div>
         );
       default:
@@ -261,24 +290,14 @@ export function Settings({ onClearData }: SettingsProps) {
             Notificações
           </button>
           <button 
-            onClick={() => setActiveTab('users')}
+            onClick={() => setActiveTab('backup')}
             className={cn(
               "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-colors",
-              activeTab === 'users' ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50"
+              activeTab === 'backup' ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50"
             )}
           >
-            <Users size={18} />
-            Usuários e Permissões
-          </button>
-          <button 
-            onClick={() => setActiveTab('security')}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm text-left transition-colors",
-              activeTab === 'security' ? "bg-emerald-50 text-emerald-700" : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            <Shield size={18} />
-            Segurança
+            <Save size={18} />
+            Backup e Restauração
           </button>
         </div>
 

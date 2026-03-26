@@ -160,27 +160,27 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
-      <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} />
+    <div className="flex h-screen bg-[#F8FAFC] font-sans overflow-hidden">
+      <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} datasets={datasets} />
       
-      <main className="flex-1 overflow-y-auto">
-        <header className="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+      <main className="flex-1 overflow-y-auto relative">
+        <header className="glass-panel px-8 py-5 flex justify-between items-center sticky top-0 z-20 shadow-sm">
           <div>
-            <h2 className="text-xl font-semibold text-slate-800">
+            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
               {getHeaderTitle()}
             </h2>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-sm text-slate-500">
+            <div className="text-sm font-medium text-slate-500 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
               {Object.keys(datasets).length} indicadores carregados
             </div>
-            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm border border-emerald-200">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-500/20">
               MS
             </div>
           </div>
         </header>
         
-        <div className="p-4 h-[calc(100vh-73px)]">
+        <div className="p-6 h-[calc(100vh-85px)]">
           {renderContent()}
         </div>
       </main>

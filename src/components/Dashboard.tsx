@@ -32,14 +32,14 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
   let totalDenominador = 0;
   
   if (isCvat) {
-    totalAcompanhadas = data.reduce((acc, curr) => acc + (parseFloat(String(curr.raw['TOTAL DE PESSOAS ACOMPANHADAS'] || '0').replace(/\./g, '').replace(',', '.')) || 0), 0);
-    totalParametro = data.reduce((acc, curr) => acc + (parseFloat(String(curr.raw['PARÂMETRO POPULACIONAL'] || '0').replace(/\./g, '').replace(',', '.')) || 0), 0);
+    totalAcompanhadas = data.reduce((acc, curr) => acc + (parseFloat(String((curr.raw && curr.raw['TOTAL DE PESSOAS ACOMPANHADAS']) || '0').replace(/\./g, '').replace(',', '.')) || 0), 0);
+    totalParametro = data.reduce((acc, curr) => acc + (parseFloat(String((curr.raw && curr.raw['PARÂMETRO POPULACIONAL']) || '0').replace(/\./g, '').replace(',', '.')) || 0), 0);
   } else {
-    totalNumerador = data.reduce((acc, curr) => acc + (curr.numerador || 0), 0);
-    totalDenominador = data.reduce((acc, curr) => acc + (curr.denominador || 0), 0);
+    totalNumerador = data.reduce((acc, curr) => acc + Number(curr.numerador || 0), 0);
+    totalDenominador = data.reduce((acc, curr) => acc + Number(curr.denominador || 0), 0);
   }
 
-  const mediaPontuacao = data.reduce((acc, curr) => acc + curr.pontuacao, 0) / (totalEquipes || 1);
+  const mediaPontuacao = data.reduce((acc, curr) => acc + Number(curr.pontuacao || 0), 0) / (totalEquipes || 1);
 
   const success = data.filter(d => d.status === 'success').length;
   const warning = data.filter(d => d.status === 'warning').length;
@@ -65,112 +65,136 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
   const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#14b8a6'];
 
   // Top 10 equipes por pontuação
-  const topEquipes = [...data].sort((a, b) => b.pontuacao - a.pontuacao).slice(0, 10);
+  const topEquipes = [...data].sort((a, b) => Number(b.pontuacao || 0) - Number(a.pontuacao || 0)).slice(0, 10);
 
   return (
-    <div className="space-y-6 p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 max-w-7xl mx-auto h-full overflow-y-auto pb-12">
+      <div className="flex justify-between items-end mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Visão Geral - {indicatorName}</h2>
-          <p className="text-slate-500 text-sm mt-1">Monitoramento de Desempenho</p>
+          <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Visão Geral - {indicatorName}</h2>
+          <p className="text-slate-500 text-base mt-2">Monitoramento de Desempenho</p>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${isCvat ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-4`}>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-          <div>
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${isCvat ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="flex justify-between items-start relative z-10">
             <p className="text-sm font-medium text-slate-500">Total de Equipes</p>
-            <p className="text-3xl font-bold text-slate-900 mt-2">{totalEquipes}</p>
+            <div className="p-2.5 bg-blue-100 text-blue-600 rounded-xl shadow-sm">
+              <Activity size={20} />
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-            <Activity size={24} />
+          <div className="mt-4 relative z-10">
+            <p className="text-4xl font-display font-bold text-slate-900 tracking-tight">{totalEquipes}</p>
           </div>
         </div>
         
         {isCvat ? (
           <>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Pessoas Acompanhadas</p>
-                <p className="text-3xl font-bold text-emerald-600 mt-2">{totalAcompanhadas.toLocaleString('pt-BR')}</p>
+                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
+                  <Users size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <Users size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-emerald-600 tracking-tight">{totalAcompanhadas.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Parâmetro Populacional</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-2">{totalParametro.toLocaleString('pt-BR')}</p>
+                <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+                  <Target size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-                <Target size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-indigo-600 tracking-tight">{totalParametro.toLocaleString('pt-BR')}</p>
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Numerador Total</p>
-                <p className="text-3xl font-bold text-indigo-600 mt-2">{totalNumerador.toLocaleString('pt-BR')}</p>
+                <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+                  <Users size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
-                <Users size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-indigo-600 tracking-tight">{totalNumerador.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Denominador Total</p>
-                <p className="text-3xl font-bold text-purple-600 mt-2">{totalDenominador.toLocaleString('pt-BR')}</p>
+                <div className="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-sm">
+                  <Target size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-                <Target size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-purple-600 tracking-tight">{totalDenominador.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Equipes Adequadas</p>
-                <p className="text-3xl font-bold text-emerald-600 mt-2">{success}</p>
+                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
+                  <CheckCircle size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <CheckCircle size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-emerald-600 tracking-tight">{success}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-              <div>
+            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+              <div className="flex justify-between items-start relative z-10">
                 <p className="text-sm font-medium text-slate-500">Equipes Críticas</p>
-                <p className="text-3xl font-bold text-red-600 mt-2">{danger}</p>
+                <div className="p-2.5 bg-rose-100 text-rose-600 rounded-xl shadow-sm">
+                  <Target size={20} />
+                </div>
               </div>
-              <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-600">
-                <Target size={24} />
+              <div className="mt-4 relative z-10">
+                <p className="text-4xl font-display font-bold text-rose-600 tracking-tight">{danger}</p>
               </div>
             </div>
           </>
         )}
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center justify-between">
-          <div>
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="flex justify-between items-start relative z-10">
             <p className="text-sm font-medium text-slate-500">Média de Pontuação</p>
-            <p className="text-3xl font-bold text-amber-500 mt-2">
-              {mediaPontuacao.toFixed(2)}{!isCvat && '%'}
-            </p>
+            <div className="p-2.5 bg-amber-100 text-amber-600 rounded-xl shadow-sm">
+              <CheckCircle size={20} />
+            </div>
           </div>
-          <div className="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
-            <CheckCircle size={24} />
+          <div className="mt-4 relative z-10">
+            <p className="text-4xl font-display font-bold text-amber-500 tracking-tight">
+              {mediaPontuacao.toFixed(2)}{!isCvat && <span className="text-2xl text-slate-400 font-medium ml-1">%</span>}
+            </p>
           </div>
         </div>
       </div>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-6">Distribuição de Status (Pontuação)</h3>
+        <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+          <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Distribuição de Status (Pontuação)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
@@ -188,7 +212,7 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
                 />
                 <Legend iconType="circle" layout="vertical" verticalAlign="middle" align="right" />
               </RechartsPieChart>
@@ -196,8 +220,8 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h3 className="text-lg font-semibold text-slate-800 mb-6">Tipos de Estabelecimento</h3>
+        <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+          <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Tipos de Estabelecimento</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
@@ -214,7 +238,7 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
                 />
               </RechartsPieChart>
             </ResponsiveContainer>
@@ -223,8 +247,8 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
       </div>
 
       {/* Top Indicators Bar Chart */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <h3 className="text-lg font-semibold text-slate-800 mb-6">Top 10 Equipes por Pontuação</h3>
+      <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
+        <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Top 10 Equipes por Pontuação</h3>
         <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topEquipes} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -233,7 +257,7 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
               <YAxis dataKey="nomeEquipe" type="category" width={200} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} />
               <Tooltip 
                 cursor={{fill: '#f8fafc'}}
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
               />
               <Legend iconType="circle" />
               <Bar dataKey="pontuacao" name="Pontuação" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />

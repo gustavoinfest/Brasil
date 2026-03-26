@@ -11,9 +11,10 @@ export function cn(...inputs: ClassValue[]) {
 interface SidebarProps {
   currentTab: string;
   onTabChange: (tab: string) => void;
+  datasets?: Record<string, any>;
 }
 
-export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
+export function Sidebar({ currentTab, onTabChange, datasets = {} }: SidebarProps) {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     'Geral': true,
     'eSF/eAP': false,
@@ -33,6 +34,14 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
     acc[ind.group].push(ind);
     return acc;
   }, {} as Record<string, typeof PREDEFINED_INDICATORS>);
+
+  // Add custom datasets
+  Object.values(datasets).forEach(ds => {
+    if (!PREDEFINED_INDICATORS.find(i => i.id === ds.id)) {
+      if (!groups['Outros']) groups['Outros'] = [];
+      groups['Outros'].push({ id: ds.id, name: ds.name, group: 'Outros', match: '' });
+    }
+  });
 
   // Auto-expand group if it contains the active tab
   useEffect(() => {
@@ -54,13 +63,15 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-800 overflow-y-auto">
-      <div className="p-6 border-b border-slate-800 sticky top-0 bg-slate-900 z-10">
-        <h1 className="text-xl font-bold text-white flex items-center gap-2">
-          <Activity className="text-emerald-500" />
-          Saúde Brasil 360°
+    <div className="w-72 bg-[#0B1120] text-slate-300 flex flex-col h-full border-r border-slate-800/50 overflow-y-auto shadow-2xl">
+      <div className="p-6 border-b border-slate-800/50 sticky top-0 bg-[#0B1120]/95 backdrop-blur-sm z-10">
+        <h1 className="text-2xl font-display font-bold text-white flex items-center gap-3 tracking-tight">
+          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-500/20">
+            <Activity size={20} className="text-white" />
+          </div>
+          Saúde 360°
         </h1>
-        <p className="text-xs text-slate-500 mt-1">Monitoramento Novo PAC</p>
+        <p className="text-xs text-indigo-300/70 mt-2 font-medium tracking-wide uppercase">Monitoramento Novo PAC</p>
       </div>
       
       <nav className="p-4 space-y-2">
@@ -72,13 +83,13 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium",
+                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
                 isActive 
-                  ? "bg-emerald-500/10 text-emerald-400" 
-                  : "hover:bg-slate-800 hover:text-white"
+                  ? "bg-indigo-500/15 text-indigo-400 shadow-inner border border-indigo-500/20" 
+                  : "hover:bg-slate-800/50 hover:text-white border border-transparent"
               )}
             >
-              <Icon size={18} />
+              <Icon size={18} className={isActive ? "text-indigo-400" : "text-slate-400"} />
               {tab.label}
             </button>
           );
@@ -94,10 +105,10 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
               <button 
                 onClick={() => toggleGroup(groupName)}
                 className={cn(
-                  "w-full flex items-center justify-between text-xs font-semibold uppercase tracking-wider py-2 px-4 transition-colors rounded-lg",
+                  "w-full flex items-center justify-between text-xs font-bold uppercase tracking-widest py-3 px-4 transition-colors rounded-xl",
                   currentTab === `group_${groupName}` 
-                    ? "bg-slate-800 text-emerald-400" 
-                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/50"
+                    ? "bg-slate-800/80 text-indigo-400" 
+                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
                 )}
               >
                 <span>{groupName}</span>
@@ -105,7 +116,7 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
               </button>
               
               {isExpanded && (
-                <div className="space-y-1 mt-1">
+                <div className="space-y-1 mt-1 pl-2">
                   {indicators.map(ind => {
                     const tabId = `ind_${ind.id}`;
                     const isActive = currentTab === tabId;
@@ -114,14 +125,14 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
                         key={ind.id}
                         onClick={() => onTabChange(tabId)}
                         className={cn(
-                          "w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors text-sm",
+                          "w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 text-sm",
                           isActive 
-                            ? "bg-slate-800 text-white font-medium" 
-                            : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                            ? "bg-slate-800/80 text-white font-medium border border-slate-700/50 shadow-sm" 
+                            : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200 border border-transparent"
                         )}
                       >
                         <span className="truncate text-left">{ind.name}</span>
-                        {isActive && <ChevronRight size={14} className="text-emerald-500" />}
+                        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />}
                       </button>
                     );
                   })}
@@ -132,12 +143,12 @@ export function Sidebar({ currentTab, onTabChange }: SidebarProps) {
         })}
       </div>
 
-      <div className="p-4 border-t border-slate-800 sticky bottom-0 bg-slate-900">
-        <div className="bg-slate-800 rounded-xl p-4 text-xs">
-          <p className="text-slate-400 mb-2">Sistema SIAPS Integrado</p>
-          <div className="flex items-center gap-2 text-emerald-400">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Online
+      <div className="p-4 border-t border-slate-800/50 sticky bottom-0 bg-[#0B1120]/95 backdrop-blur-sm">
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 text-xs backdrop-blur-md">
+          <p className="text-slate-400 mb-2 font-medium">Sistema SIAPS Integrado</p>
+          <div className="flex items-center gap-2 text-emerald-400 font-medium">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+            Online e Sincronizado
           </div>
         </div>
       </div>

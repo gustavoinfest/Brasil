@@ -15,9 +15,9 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
 
   const filteredData = data.filter(item => {
     const matchesSearch = 
-      item.nomeEquipe.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      item.cnes.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.estabelecimento.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.nomeEquipe || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (item.cnes || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.estabelecimento || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -54,6 +54,7 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
   };
 
   const getBoasPraticas = (raw: any) => {
+    if (!raw) return [];
     const knownKeys = [
       'CNES', 'ESTABELECIMENTO', 'TIPO DO ESTABELECIMENTO', 'INE', 'NOME DA EQUIPE', 
       'SIGLA DA EQUIPE', 'NUMERADOR', 'DENOMINADOR', 
@@ -75,110 +76,111 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto h-full flex flex-col">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="p-6 max-w-7xl mx-auto h-full flex flex-col overflow-y-auto pb-12">
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Desempenho por Equipe</h2>
-          <p className="text-slate-500 text-sm mt-1">Detalhamento de {indicatorName}</p>
+          <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Desempenho por Equipe</h2>
+          <p className="text-slate-500 text-base mt-2">Detalhamento de {indicatorName}</p>
         </div>
         
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="relative flex-1 sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
               placeholder="Buscar equipe, CNES..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
             />
           </div>
           
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <div className="relative w-full sm:w-auto">
+            <Filter className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <select 
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="pl-10 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
+              className="w-full sm:w-auto pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 appearance-none shadow-sm font-medium text-slate-700 cursor-pointer transition-all hover:bg-slate-50"
             >
               <option value="all">Todos os Status</option>
               <option value="success">{isCvat ? 'Atingido' : 'Adequado'}</option>
               <option value="warning">Atenção</option>
               <option value="danger">Crítico</option>
             </select>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+              <ChevronDown size={16} />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
+      <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex-1 overflow-hidden flex flex-col">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                <th className="p-4 font-semibold">Equipe / Estabelecimento <ArrowUpDown size={14} className="inline ml-1" /></th>
-                {isCvat && (
+              <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-500 text-xs uppercase tracking-wider font-semibold">
+                <th className="p-5 font-medium">Equipe / Estabelecimento <ArrowUpDown size={14} className="inline ml-1 text-slate-400" /></th>
+                {isCvat ? (
                   <>
-                    <th className="p-4 font-semibold text-right">Parâmetro Pop.</th>
-                    <th className="p-4 font-semibold text-right">Pessoas Acompanhadas</th>
+                    <th className="p-5 font-medium text-right">Parâmetro Pop.</th>
+                    <th className="p-5 font-medium text-right">Pessoas Acompanhadas</th>
+                  </>
+                ) : (
+                  <>
+                    <th className="p-5 font-medium text-right">Numerador</th>
+                    <th className="p-5 font-medium text-right">Denominador</th>
                   </>
                 )}
-                {!isCvat && (
-                  <>
-                    <th className="p-4 font-semibold text-right">Numerador</th>
-                    <th className="p-4 font-semibold text-right">Denominador</th>
-                  </>
-                )}
-                <th className="p-4 font-semibold text-right">Pontuação</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold text-center">Boas Práticas</th>
+                <th className="p-5 font-medium text-right">Pontuação</th>
+                <th className="p-5 font-medium text-center">Status</th>
+                <th className="p-5 font-medium text-center">Boas Práticas</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredData.length > 0 ? (
                 filteredData.map((indicator) => (
                   <React.Fragment key={indicator.id}>
-                    <tr className="hover:bg-slate-50 transition-colors">
-                      <td className="p-4">
-                        <div className="font-medium text-slate-900">{indicator.nomeEquipe || 'Sem Nome'}</div>
-                        <div className="text-xs text-slate-500 mt-1">{indicator.estabelecimento} (CNES: {indicator.cnes})</div>
+                    <tr className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="p-5">
+                        <div className="font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">{indicator.nomeEquipe || 'Sem Nome'}</div>
+                        <div className="text-xs text-slate-500 mt-1 font-medium">{indicator.estabelecimento} <span className="text-slate-400 font-mono ml-1">(CNES: {indicator.cnes})</span></div>
                       </td>
-                      {isCvat && (
+                      {isCvat ? (
                         <>
-                          <td className="p-4 text-right font-medium text-slate-700">
-                            {parseFloat(indicator.raw['PARÂMETRO POPULACIONAL'] || '0').toLocaleString('pt-BR')}
+                          <td className="p-5 text-right font-medium text-slate-600">
+                            {parseFloat((indicator.raw && indicator.raw['PARÂMETRO POPULACIONAL']) || '0').toLocaleString('pt-BR')}
                           </td>
-                          <td className="p-4 text-right font-medium text-slate-900">
-                            {parseFloat(indicator.raw['TOTAL DE PESSOAS ACOMPANHADAS'] || '0').toLocaleString('pt-BR')}
+                          <td className="p-5 text-right font-medium text-slate-800">
+                            {parseFloat((indicator.raw && indicator.raw['TOTAL DE PESSOAS ACOMPANHADAS']) || '0').toLocaleString('pt-BR')}
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="p-5 text-right font-medium text-slate-600">
+                            {Number(indicator.numerador || 0).toLocaleString('pt-BR')}
+                          </td>
+                          <td className="p-5 text-right font-medium text-slate-800">
+                            {Number(indicator.denominador || 0).toLocaleString('pt-BR')}
                           </td>
                         </>
                       )}
-                      {!isCvat && (
-                        <>
-                          <td className="p-4 text-right font-medium text-slate-700">
-                            {(indicator.numerador || 0).toLocaleString('pt-BR')}
-                          </td>
-                          <td className="p-4 text-right font-medium text-slate-900">
-                            {(indicator.denominador || 0).toLocaleString('pt-BR')}
-                          </td>
-                        </>
-                      )}
-                      <td className="p-4 text-right">
-                        <span className="font-bold text-slate-900">{indicator.pontuacao.toFixed(2)}{!isCvat && '%'}</span>
+                      <td className="p-5 text-right">
+                        <span className="text-lg font-display font-bold text-slate-800">{Number(indicator.pontuacao || 0).toFixed(2)}{!isCvat && <span className="text-sm text-slate-400 ml-0.5">%</span>}</span>
                       </td>
-                      <td className="p-4">
-                        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
-                          ${indicator.status === 'success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 
-                            indicator.status === 'warning' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
-                            'bg-red-50 text-red-700 border-red-200'}`}
+                      <td className="p-5 text-center">
+                        <div className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider
+                          ${indicator.status === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 
+                            indicator.status === 'warning' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 
+                            'bg-rose-50 text-rose-700 border border-rose-100'}`}
                         >
                           {getStatusIcon(indicator.status)}
                           {getStatusText(indicator.status)}
                         </div>
                       </td>
-                      <td className="p-4 text-center">
+                      <td className="p-5 text-center">
                         <button 
                           onClick={() => toggleExpand(indicator.id)} 
-                          className={`p-1.5 rounded-lg transition-colors ${expandedTeam === indicator.id ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'}`}
+                          className={`p-2 rounded-xl transition-all duration-200 ${expandedTeam === indicator.id ? 'bg-indigo-100 text-indigo-600 shadow-inner' : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 hover:shadow-sm'}`}
                           title="Ver Boas Práticas e Detalhes"
                         >
                           {expandedTeam === indicator.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -188,22 +190,26 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
                     {expandedTeam === indicator.id && (
                       <tr className="bg-slate-50/50 border-b border-slate-100">
                         <td colSpan={isCvat ? 6 : 6} className="p-6">
-                          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                            <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                              <Info size={16} className="text-indigo-500" /> 
+                          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm">
+                            <h4 className="text-sm font-display font-bold text-slate-800 mb-5 flex items-center gap-2">
+                              <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center">
+                                <Info size={18} className="text-indigo-500" /> 
+                              </div>
                               Boas Práticas e Detalhamento do Indicador
                             </h4>
                             {getBoasPraticas(indicator.raw).length > 0 ? (
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {getBoasPraticas(indicator.raw).map(([key, value]) => (
-                                  <div key={key} className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <p className="text-[11px] font-semibold text-slate-500 mb-1 uppercase tracking-wider">{key}</p>
-                                    <p className="text-sm text-slate-900 font-medium">{String(value)}</p>
+                                  <div key={key} className="bg-slate-50/80 p-4 rounded-xl border border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-colors">
+                                    <p className="text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">{key}</p>
+                                    <p className="text-sm text-slate-800 font-medium">{String(value)}</p>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-sm text-slate-500">Nenhum dado adicional de boas práticas encontrado na planilha para esta equipe.</p>
+                              <div className="text-center py-6 bg-slate-50 rounded-xl border border-slate-100 border-dashed">
+                                <p className="text-sm text-slate-500 font-medium">Nenhum dado adicional de boas práticas encontrado na planilha para esta equipe.</p>
+                              </div>
                             )}
                           </div>
                         </td>
@@ -213,8 +219,12 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
                 ))
               ) : (
                 <tr>
-                  <td colSpan={isCvat ? 6 : 6} className="p-8 text-center text-slate-500">
-                    Nenhuma equipe encontrada com os filtros atuais.
+                  <td colSpan={isCvat ? 6 : 6} className="p-12 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+                      <Search size={24} className="text-slate-400" />
+                    </div>
+                    <p className="text-slate-600 font-medium text-lg">Nenhuma equipe encontrada</p>
+                    <p className="text-slate-400 text-sm mt-1">Tente ajustar os filtros de busca.</p>
                   </td>
                 </tr>
               )}
@@ -222,8 +232,8 @@ export function IndicatorsList({ data, indicatorName = 'Indicador', isCvat = fal
           </table>
         </div>
         
-        <div className="p-4 border-t border-slate-200 bg-slate-50 text-sm text-slate-500 flex justify-between items-center">
-          <span>Mostrando {filteredData.length} de {data.length} equipes</span>
+        <div className="p-5 border-t border-slate-100 bg-slate-50/50 text-sm text-slate-500 flex justify-between items-center font-medium">
+          <span>Mostrando <span className="text-slate-800 font-bold">{filteredData.length}</span> de <span className="text-slate-800 font-bold">{data.length}</span> equipes</span>
         </div>
       </div>
     </div>
