@@ -37,38 +37,34 @@ export default function App() {
   }, []);
 
   const handleDataUploaded = async (newDatasets: IndicatorDataset[]) => {
-    let updatedDatasets: Record<string, IndicatorDataset> = {};
-    
-    setDatasets(prev => {
-      const updated = { ...prev };
-      newDatasets.forEach(ds => {
-        if (updated[ds.id]) {
-          // Merge data if it's the same indicator
-          const existingData = [...updated[ds.id].data];
-          ds.data.forEach(newItem => {
-            const existingIndex = existingData.findIndex(item => item.id === newItem.id);
-            if (existingIndex >= 0) {
-              existingData[existingIndex] = newItem; // overwrite existing team
-            } else {
-              existingData.push(newItem); // add new team
-            }
-          });
-          updated[ds.id] = {
-            ...updated[ds.id],
-            data: existingData,
-            lastUpdated: new Date().toISOString()
-          };
-        } else {
-          updated[ds.id] = ds;
-        }
-      });
-      updatedDatasets = updated;
-      return updated;
+    const updated = { ...datasets };
+    newDatasets.forEach(ds => {
+      if (updated[ds.id]) {
+        // Merge data if it's the same indicator
+        const existingData = [...updated[ds.id].data];
+        ds.data.forEach(newItem => {
+          const existingIndex = existingData.findIndex(item => item.id === newItem.id);
+          if (existingIndex >= 0) {
+            existingData[existingIndex] = newItem; // overwrite existing team
+          } else {
+            existingData.push(newItem); // add new team
+          }
+        });
+        updated[ds.id] = {
+          ...updated[ds.id],
+          data: existingData,
+          lastUpdated: new Date().toISOString()
+        };
+      } else {
+        updated[ds.id] = ds;
+      }
     });
+    
+    setDatasets(updated);
     
     // Save to local storage
     try {
-      await localforage.setItem('all_datasets', updatedDatasets);
+      await localforage.setItem('all_datasets', updated);
     } catch (error) {
       console.error("Erro ao salvar dados:", error);
     }
@@ -160,21 +156,21 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#F8FAFC] font-sans overflow-hidden">
+    <div className="flex h-screen bg-gray-100 font-sans overflow-hidden">
       <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} datasets={datasets} />
       
       <main className="flex-1 overflow-y-auto relative">
-        <header className="glass-panel px-8 py-5 flex justify-between items-center sticky top-0 z-20 shadow-sm">
+        <header className="bg-white px-8 py-5 flex justify-between items-center sticky top-0 z-20 shadow-sm border-b border-gray-200">
           <div>
-            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+            <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
               {getHeaderTitle()}
             </h2>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-sm font-medium text-slate-500 bg-white px-3 py-1.5 rounded-full shadow-sm border border-slate-100">
+            <div className="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
               {Object.keys(datasets).length} indicadores carregados
             </div>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
               MS
             </div>
           </div>

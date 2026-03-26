@@ -69,123 +69,115 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto h-full overflow-y-auto pb-12">
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex justify-between items-end mb-6">
         <div>
-          <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">Visão Geral - {indicatorName}</h2>
-          <p className="text-slate-500 text-base mt-2">Monitoramento de Desempenho</p>
+          <h2 className="text-2xl font-bold text-gray-900">Visão Geral - {indicatorName}</h2>
+          <p className="text-gray-500 text-sm mt-1">Monitoramento de Desempenho</p>
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className={`grid grid-cols-1 md:grid-cols-2 ${isCvat ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-          <div className="flex justify-between items-start relative z-10">
-            <p className="text-sm font-medium text-slate-500">Total de Equipes</p>
-            <div className="p-2.5 bg-blue-100 text-blue-600 rounded-xl shadow-sm">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <p className="text-sm font-medium text-gray-500">Total de Equipes</p>
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-md">
               <Activity size={20} />
             </div>
           </div>
-          <div className="mt-4 relative z-10">
-            <p className="text-4xl font-display font-bold text-slate-900 tracking-tight">{totalEquipes}</p>
+          <div className="mt-4">
+            <p className="text-3xl font-bold text-gray-900">{totalEquipes}</p>
           </div>
         </div>
         
         {isCvat ? (
           <>
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Pessoas Acompanhadas</p>
-                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Pessoas Acompanhadas</p>
+                <div className="p-2 bg-green-50 text-green-600 rounded-md">
                   <Users size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-emerald-600 tracking-tight">{totalAcompanhadas.toLocaleString('pt-BR')}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{totalAcompanhadas.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Parâmetro Populacional</p>
-                <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Parâmetro Populacional</p>
+                <div className="p-2 bg-purple-50 text-purple-600 rounded-md">
                   <Target size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-indigo-600 tracking-tight">{totalParametro.toLocaleString('pt-BR')}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{totalParametro.toLocaleString('pt-BR')}</p>
               </div>
             </div>
           </>
         ) : (
           <>
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Numerador Total</p>
-                <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Numerador Total</p>
+                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-md">
                   <Users size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-indigo-600 tracking-tight">{totalNumerador.toLocaleString('pt-BR')}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{totalNumerador.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Denominador Total</p>
-                <div className="p-2.5 bg-purple-100 text-purple-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Denominador Total</p>
+                <div className="p-2 bg-purple-50 text-purple-600 rounded-md">
                   <Target size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-purple-600 tracking-tight">{totalDenominador.toLocaleString('pt-BR')}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{totalDenominador.toLocaleString('pt-BR')}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Equipes Adequadas</p>
-                <div className="p-2.5 bg-emerald-100 text-emerald-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Equipes Adequadas</p>
+                <div className="p-2 bg-green-50 text-green-600 rounded-md">
                   <CheckCircle size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-emerald-600 tracking-tight">{success}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{success}</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-rose-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-              <div className="flex justify-between items-start relative z-10">
-                <p className="text-sm font-medium text-slate-500">Equipes Críticas</p>
-                <div className="p-2.5 bg-rose-100 text-rose-600 rounded-xl shadow-sm">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <p className="text-sm font-medium text-gray-500">Equipes Críticas</p>
+                <div className="p-2 bg-red-50 text-red-600 rounded-md">
                   <Target size={20} />
                 </div>
               </div>
-              <div className="mt-4 relative z-10">
-                <p className="text-4xl font-display font-bold text-rose-600 tracking-tight">{danger}</p>
+              <div className="mt-4">
+                <p className="text-3xl font-bold text-gray-900">{danger}</p>
               </div>
             </div>
           </>
         )}
 
-        <div className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] flex flex-col justify-between relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
-          <div className="flex justify-between items-start relative z-10">
-            <p className="text-sm font-medium text-slate-500">Média de Pontuação</p>
-            <div className="p-2.5 bg-amber-100 text-amber-600 rounded-xl shadow-sm">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <p className="text-sm font-medium text-gray-500">Média de Pontuação</p>
+            <div className="p-2 bg-yellow-50 text-yellow-600 rounded-md">
               <CheckCircle size={20} />
             </div>
           </div>
-          <div className="mt-4 relative z-10">
-            <p className="text-4xl font-display font-bold text-amber-500 tracking-tight">
-              {mediaPontuacao.toFixed(2)}{!isCvat && <span className="text-2xl text-slate-400 font-medium ml-1">%</span>}
+          <div className="mt-4">
+            <p className="text-3xl font-bold text-gray-900">
+              {mediaPontuacao.toFixed(2)}{!isCvat && '%'}
             </p>
           </div>
         </div>
@@ -193,8 +185,8 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
-          <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Distribuição de Status (Pontuação)</h3>
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Distribuição de Status (Pontuação)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
@@ -212,7 +204,7 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                 />
                 <Legend iconType="circle" layout="vertical" verticalAlign="middle" align="right" />
               </RechartsPieChart>
@@ -220,8 +212,8 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
-          <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Tipos de Estabelecimento</h3>
+        <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-4">Tipos de Estabelecimento</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <RechartsPieChart>
@@ -238,7 +230,7 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
                   ))}
                 </Pie>
                 <Tooltip 
-                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
                 />
               </RechartsPieChart>
             </ResponsiveContainer>
@@ -247,17 +239,17 @@ export function Dashboard({ data, indicatorName = 'Indicador', isCvat = false }:
       </div>
 
       {/* Top Indicators Bar Chart */}
-      <div className="bg-white rounded-3xl p-8 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)]">
-        <h3 className="text-xl font-display font-bold text-slate-800 mb-6 tracking-tight">Top 10 Equipes por Pontuação</h3>
+      <div className="bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Top 10 Equipes por Pontuação</h3>
         <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={topEquipes} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e2e8f0" />
-              <XAxis type="number" domain={[0, isCvat ? 10 : 100]} axisLine={false} tickLine={false} tick={{fill: '#64748b'}} />
-              <YAxis dataKey="nomeEquipe" type="category" width={200} axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} />
+              <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
+              <XAxis type="number" domain={[0, isCvat ? 10 : 100]} axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} />
+              <YAxis dataKey="nomeEquipe" type="category" width={200} axisLine={false} tickLine={false} tick={{fill: '#6b7280', fontSize: 11}} />
               <Tooltip 
-                cursor={{fill: '#f8fafc'}}
-                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }}
+                cursor={{fill: '#f9fafb'}}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
               />
               <Legend iconType="circle" />
               <Bar dataKey="pontuacao" name="Pontuação" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />

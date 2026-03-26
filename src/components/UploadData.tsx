@@ -82,7 +82,15 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
 
           const headerIndex = lines.findIndex(line => {
             const upperLine = line.toUpperCase();
-            return upperLine.includes('CNES') || upperLine.includes('INE') || upperLine.includes('NOME DA EQUIPE') || upperLine.includes('EQUIPE');
+            let matches = 0;
+            if (upperLine.includes('CNES')) matches++;
+            if (upperLine.includes('ESTABELECIMENTO')) matches++;
+            if (upperLine.includes('EQUIPE')) matches++;
+            if (upperLine.includes('INE')) matches++;
+            if (upperLine.includes('NUMERADOR')) matches++;
+            if (upperLine.includes('DENOMINADOR')) matches++;
+            if (upperLine.includes('PONTUAÇÃO') || upperLine.includes('PONTUACAO') || upperLine.includes('RESULTADO') || upperLine.includes('TAXA') || upperLine.includes('PROPORÇÃO')) matches++;
+            return matches >= 2;
           });
           
           if (headerIndex === -1) {
@@ -98,6 +106,7 @@ export function UploadData({ onDataUploaded }: UploadDataProps) {
           const csvString = csvLines.join('\n');
 
           Papa.parse(csvString, {
+            delimiter: ';',
             header: true,
             skipEmptyLines: true,
             complete: (parseResults) => {

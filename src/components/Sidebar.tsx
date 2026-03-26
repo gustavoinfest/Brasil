@@ -63,18 +63,16 @@ export function Sidebar({ currentTab, onTabChange, datasets = {} }: SidebarProps
   };
 
   return (
-    <div className="w-72 bg-[#0B1120] text-slate-300 flex flex-col h-full border-r border-slate-800/50 overflow-y-auto shadow-2xl">
-      <div className="p-6 border-b border-slate-800/50 sticky top-0 bg-[#0B1120]/95 backdrop-blur-sm z-10">
-        <h1 className="text-2xl font-display font-bold text-white flex items-center gap-3 tracking-tight">
-          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg shadow-indigo-500/20">
-            <Activity size={20} className="text-white" />
-          </div>
+    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full overflow-y-auto">
+      <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <h1 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+          <Activity className="text-blue-600" />
           Saúde 360°
         </h1>
-        <p className="text-xs text-indigo-300/70 mt-2 font-medium tracking-wide uppercase">Monitoramento Novo PAC</p>
+        <p className="text-xs text-gray-500 mt-1">Monitoramento Novo PAC</p>
       </div>
       
-      <nav className="p-4 space-y-2">
+      <nav className="p-4 space-y-1">
         {mainTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentTab === tab.id;
@@ -83,13 +81,13 @@ export function Sidebar({ currentTab, onTabChange, datasets = {} }: SidebarProps
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium",
+                "w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-sm font-medium",
                 isActive 
-                  ? "bg-indigo-500/15 text-indigo-400 shadow-inner border border-indigo-500/20" 
-                  : "hover:bg-slate-800/50 hover:text-white border border-transparent"
+                  ? "bg-blue-50 text-blue-700" 
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
               )}
             >
-              <Icon size={18} className={isActive ? "text-indigo-400" : "text-slate-400"} />
+              <Icon size={18} className={isActive ? "text-blue-600" : "text-gray-400"} />
               {tab.label}
             </button>
           );
@@ -99,40 +97,40 @@ export function Sidebar({ currentTab, onTabChange, datasets = {} }: SidebarProps
       <div className="flex-1 px-4 pb-4">
         {Object.entries(groups).map(([groupName, indicators]) => {
           const isExpanded = expandedGroups[groupName];
-          
           return (
-            <div key={groupName} className="mb-2">
-              <button 
+            <div key={groupName} className="mb-4">
+              <button
                 onClick={() => toggleGroup(groupName)}
-                className={cn(
-                  "w-full flex items-center justify-between text-xs font-bold uppercase tracking-widest py-3 px-4 transition-colors rounded-xl",
-                  currentTab === `group_${groupName}` 
-                    ? "bg-slate-800/80 text-indigo-400" 
-                    : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/30"
-                )}
+                className="w-full flex items-center justify-between text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-2 hover:text-gray-700 transition-colors"
               >
                 <span>{groupName}</span>
                 {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
               </button>
               
               {isExpanded && (
-                <div className="space-y-1 mt-1 pl-2">
-                  {indicators.map(ind => {
-                    const tabId = `ind_${ind.id}`;
-                    const isActive = currentTab === tabId;
+                <div className="space-y-1">
+                  {indicators.map((indicator) => {
+                    const isActive = currentTab === `ind_${indicator.id}`;
+                    const hasData = datasets[`ind_${indicator.id}`]?.data?.length > 0;
+                    
                     return (
                       <button
-                        key={ind.id}
-                        onClick={() => onTabChange(tabId)}
+                        key={indicator.id}
+                        onClick={() => onTabChange(`ind_${indicator.id}`)}
                         className={cn(
-                          "w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 text-sm",
-                          isActive 
-                            ? "bg-slate-800/80 text-white font-medium border border-slate-700/50 shadow-sm" 
-                            : "text-slate-400 hover:bg-slate-800/40 hover:text-slate-200 border border-transparent"
+                          "w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors text-left",
+                          isActive
+                            ? "bg-blue-50 text-blue-700 font-medium"
+                            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                         )}
                       >
-                        <span className="truncate text-left">{ind.name}</span>
-                        {isActive && <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />}
+                        <span className="truncate pr-2">{indicator.name}</span>
+                        {hasData && (
+                          <span className={cn(
+                            "w-2 h-2 rounded-full flex-shrink-0",
+                            isActive ? "bg-blue-500" : "bg-green-500"
+                          )} />
+                        )}
                       </button>
                     );
                   })}
@@ -141,16 +139,6 @@ export function Sidebar({ currentTab, onTabChange, datasets = {} }: SidebarProps
             </div>
           );
         })}
-      </div>
-
-      <div className="p-4 border-t border-slate-800/50 sticky bottom-0 bg-[#0B1120]/95 backdrop-blur-sm">
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 text-xs backdrop-blur-md">
-          <p className="text-slate-400 mb-2 font-medium">Sistema SIAPS Integrado</p>
-          <div className="flex items-center gap-2 text-emerald-400 font-medium">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-            Online e Sincronizado
-          </div>
-        </div>
       </div>
     </div>
   );

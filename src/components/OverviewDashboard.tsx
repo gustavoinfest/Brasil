@@ -67,46 +67,46 @@ export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload, f
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-emerald-600 bg-emerald-50/80 border-emerald-100 shadow-emerald-500/5';
-      case 'warning': return 'text-amber-600 bg-amber-50/80 border-amber-100 shadow-amber-500/5';
-      case 'danger': return 'text-rose-600 bg-rose-50/80 border-rose-100 shadow-rose-500/5';
-      default: return 'text-slate-400 bg-slate-50/80 border-slate-100 shadow-slate-500/5';
+      case 'success': return 'text-green-700 bg-green-50 border-green-200';
+      case 'warning': return 'text-yellow-700 bg-yellow-50 border-yellow-200';
+      case 'danger': return 'text-red-700 bg-red-50 border-red-200';
+      default: return 'text-gray-500 bg-gray-50 border-gray-200';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success': return <CheckCircle size={22} className="text-emerald-500" />;
-      case 'warning': return <AlertTriangle size={22} className="text-amber-500" />;
-      case 'danger': return <XCircle size={22} className="text-rose-500" />;
-      default: return <Activity size={22} className="text-slate-400" />;
+      case 'success': return <CheckCircle size={20} className="text-green-500" />;
+      case 'warning': return <AlertTriangle size={20} className="text-yellow-500" />;
+      case 'danger': return <XCircle size={20} className="text-red-500" />;
+      default: return <Activity size={20} className="text-gray-400" />;
     }
   };
 
   return (
     <div className="max-w-7xl mx-auto h-full overflow-y-auto pb-12">
-      <div className="mb-10 flex justify-between items-end">
+      <div className="mb-8 flex justify-between items-end">
         <div>
-          <h2 className="text-3xl font-display font-bold text-slate-900 tracking-tight">
+          <h2 className="text-2xl font-bold text-gray-900">
             {filterGroup ? `Visão Geral: ${filterGroup}` : 'Visão Geral dos Indicadores'}
           </h2>
-          <p className="text-slate-500 text-base mt-2">Acompanhamento consolidado do município</p>
+          <p className="text-gray-500 text-sm mt-1">Acompanhamento consolidado do município</p>
         </div>
         <button 
           onClick={onGoToUpload}
-          className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all duration-200 text-sm font-medium shadow-lg shadow-slate-900/20 hover:shadow-slate-900/30 hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm"
         >
-          <UploadCloud size={18} />
+          <UploadCloud size={16} />
           Importar Dados
         </button>
       </div>
 
       {Object.entries(groupedIndicators).map(([group, indicators]) => (
-        <div key={group} className="mb-12">
+        <div key={group} className="mb-10">
           {!filterGroup && (
-            <div className="flex items-center gap-3 mb-6">
-              <h3 className="text-xl font-display font-bold text-slate-800 tracking-tight">{group}</h3>
-              <div className="h-px bg-slate-200 flex-1"></div>
+            <div className="flex items-center gap-3 mb-4">
+              <h3 className="text-lg font-bold text-gray-800">{group}</h3>
+              <div className="h-px bg-gray-200 flex-1"></div>
             </div>
           )}
           
@@ -118,18 +118,18 @@ export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload, f
                 return (
                   <div 
                     key={indicator.id} 
-                    className="bg-white rounded-3xl p-6 border border-slate-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.02)] opacity-70 hover:opacity-100 transition-all duration-300 cursor-pointer flex flex-col justify-between h-44 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] group"
+                    className="bg-white rounded-lg p-5 border border-gray-200 shadow-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer flex flex-col justify-between h-40"
                     onClick={() => onGoToUpload()}
                   >
                     <div>
-                      <h4 className="font-display font-semibold text-slate-700 mb-2 line-clamp-2 text-lg leading-tight group-hover:text-indigo-600 transition-colors">{indicator.name}</h4>
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-500">
+                      <h4 className="font-semibold text-gray-700 mb-2 line-clamp-2">{indicator.name}</h4>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                         Sem dados
                       </span>
                     </div>
-                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100/50">
-                      <span className="text-sm font-medium text-slate-400 group-hover:text-indigo-500 transition-colors">Clique para importar</span>
-                      <UploadCloud size={20} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                    <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                      <span className="text-sm text-gray-500">Clique para importar</span>
+                      <UploadCloud size={18} className="text-gray-400" />
                     </div>
                   </div>
                 );
@@ -139,46 +139,45 @@ export function OverviewDashboard({ datasets, onSelectIndicator, onGoToUpload, f
               const textColor = colorClasses[0];
               const bgColor = colorClasses[1];
               const borderColor = colorClasses[2];
-              const shadowColor = colorClasses[3];
 
               return (
                 <div 
                   key={indicator.id} 
                   onClick={() => onSelectIndicator(indicator.id)}
-                  className={`bg-white rounded-3xl p-6 border ${borderColor} shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all duration-300 cursor-pointer flex flex-col justify-between h-44 relative overflow-hidden hover:-translate-y-1 group`}
+                  className={`bg-white rounded-lg p-5 border ${borderColor} shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col justify-between h-40 relative overflow-hidden`}
                 >
-                  <div className={`absolute top-0 right-0 w-3 h-full ${bgColor} border-l ${borderColor}`}></div>
+                  <div className={`absolute top-0 right-0 w-2 h-full ${bgColor} border-l ${borderColor}`}></div>
                   
                   <div className="flex justify-between items-start">
                     <div className="pr-4">
-                      <h4 className="font-display font-semibold text-slate-800 mb-2 line-clamp-2 text-lg leading-tight group-hover:text-indigo-600 transition-colors">{indicator.name}</h4>
-                      <div className="flex items-center gap-2.5 mt-3">
+                      <h4 className="font-semibold text-gray-800 mb-1 line-clamp-2">{indicator.name}</h4>
+                      <div className="flex items-center gap-2 mt-2">
                         {getStatusIcon(stats.status)}
-                        <span className="text-3xl font-display font-bold text-slate-900 tracking-tight">
-                          {stats.mediaPontuacao.toFixed(1)}{!stats.isCvat && <span className="text-xl text-slate-400 font-medium ml-0.5">%</span>}
+                        <span className="text-2xl font-bold text-gray-900">
+                          {stats.mediaPontuacao.toFixed(1)}{!stats.isCvat && '%'}
                         </span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center">
-                    <div className="flex gap-4 text-sm">
-                      <div className="flex items-center gap-1.5" title="Equipes Adequadas">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
-                        <span className="text-slate-600 font-medium">{stats.successCount}</span>
+                  <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <div className="flex gap-3 text-sm">
+                      <div className="flex items-center gap-1" title="Equipes Adequadas">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span className="text-gray-600 font-medium">{stats.successCount}</span>
                       </div>
-                      <div className="flex items-center gap-1.5" title="Equipes em Atenção">
-                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]"></div>
-                        <span className="text-slate-600 font-medium">{stats.warningCount}</span>
+                      <div className="flex items-center gap-1" title="Equipes em Atenção">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span className="text-gray-600 font-medium">{stats.warningCount}</span>
                       </div>
-                      <div className="flex items-center gap-1.5" title="Equipes Críticas">
-                        <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.4)]"></div>
-                        <span className="text-slate-600 font-medium">{stats.dangerCount}</span>
+                      <div className="flex items-center gap-1" title="Equipes Críticas">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span className="text-gray-600 font-medium">{stats.dangerCount}</span>
                       </div>
                     </div>
                     
-                    <div className="flex items-center text-indigo-600 text-sm font-semibold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                      Detalhes <ChevronRight size={16} className="ml-0.5" />
+                    <div className="flex items-center text-blue-600 text-sm font-medium">
+                      Detalhes <ChevronRight size={16} />
                     </div>
                   </div>
                 </div>
